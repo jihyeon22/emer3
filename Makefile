@@ -31,10 +31,10 @@ CFLAGS	+= -DBOARD_$(BOARD)
 # Target rules
 
 CFLAGS	+= 
-LDFLAGS	+= -lpthread -lat2 -llogd -lmdsapi
+LDFLAGS	+= -lpthread -lat3 -llogd -lmdsapi
 
-OBJS	:= src/emer2.o src/sms_cmd.o src/netcheck.o
-APP		:= emer2
+OBJS	:= src/emer3.o src/sms_cmd.o src/netcheck.o
+APP		:= emer3
 
 all: all-before	$(APP)
 
