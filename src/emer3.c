@@ -15,6 +15,8 @@
 #include <at/watchdog.h>
 #include <logd_rpc.h>
 
+#include "board_system.h"
+
 #include "sms_cmd.h"
 #include "netcheck.h"
 
