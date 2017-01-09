@@ -103,7 +103,7 @@ void main()
 	at_listener_open();
 
 	printf("at_open call.\n");
-	at_open(e_DEV_TX501_BASE, NULL, sms_proc, NULL);
+	at_open(AT_LIB_TARGET_DEV, NULL, sms_proc, NULL);
 
 	printf("create_watchdog call.\n");
 	create_watchdog("emer.main", 3*60); //3min
