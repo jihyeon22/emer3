@@ -35,6 +35,8 @@ void network_device_up()
 	send_at_cmd("at$$apcall=1");
 	system(NETIF_UP_CMD);
 	watchdog_delete_id("network_device_up");
+	
+	send_at_cmd("AT$$LEDOFF=0");
 
 	printf("%s +--\n", __func__);
 	
