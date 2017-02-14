@@ -24,10 +24,25 @@
 #include <logd_rpc.h>
 #include "board_system.h"
 
+#include <mdsapi/mds_shm.h>
+
 void network_device_up()
 {
+	SHM_GLOBAL_DATA_T shm_data;
+    app_shm_get_global_data(&shm_data);
+	if ( shm_data.test_mode == 1 )
+	{
+		printf("%s test mod set... do nothing .. return \n", __func__);
+		LOGI(eSVC_COMMON, "%s test mod set... do nothing .. return\r\n", __func__);
+		return ;
+	}
+	else 
+	{
+		printf("%s test mod not set...\n", __func__);
+	}
+
 	printf("%s +--\n", __func__);
-	
+
 	create_watchdog("network_device_up", 100); //100sec
 	system(NETIF_DOWN_CMD);
 	send_at_cmd("at$$apcall=0");
@@ -36,7 +51,12 @@ void network_device_up()
 	system(NETIF_UP_CMD);
 	watchdog_delete_id("network_device_up");
 	
-	send_at_cmd("AT$$LEDOFF=0");
+	// sync 가 가끔 안맞을 때가 있다.
+	// 한번더 cmd 를 write 한다.
+	if ( shm_data.test_mode == 0 )
+		send_at_cmd("AT$$LEDOFF=0");
+	else
+		send_at_cmd("AT$$LEDOFF=1");
 
 	printf("%s +--\n", __func__);
 	
