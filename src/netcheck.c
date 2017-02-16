@@ -28,7 +28,7 @@
 
 void network_device_up()
 {
-	SHM_GLOBAL_DATA_T shm_data;
+	SHM_GLOBAL_DATA_T shm_data = {0,};
     app_shm_get_global_data(&shm_data);
 	if ( shm_data.test_mode == 1 )
 	{
@@ -53,6 +53,7 @@ void network_device_up()
 	
 	// sync 가 가끔 안맞을 때가 있다.
 	// 한번더 cmd 를 write 한다.
+	app_shm_get_global_data(&shm_data);
 	if ( shm_data.test_mode == 0 )
 		send_at_cmd("AT$$LEDOFF=0");
 	else
