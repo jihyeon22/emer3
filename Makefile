@@ -27,6 +27,10 @@ LDFLAGS	= $(EXTRA_LDFLAGS)
 BOARD	:= 
 CFLAGS	+= -DBOARD_$(BOARD)
 
+ifeq ($(NO_USE_NETWORK),1)
+CFLAGS += -DNO_USE_NETWORK
+endif
+
 ###############################################################################
 # Target rules
 

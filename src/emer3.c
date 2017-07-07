@@ -22,6 +22,10 @@
 
 #define MAX_CMD_TMP_BUFF 512
 
+#define OPT_STR__IS_NET_CONN_DISABLE	"-no_use_net"
+
+int g_opt_is_net_conn = 1;
+
 int util_remove_cr(const char *s, char* target, int target_len)
 {
 	int cnt = 0;
@@ -68,7 +72,7 @@ void sms_proc(const char* phone_num, const char* recv_time, const char* msg)
 	
 }
 
-void main()
+void main(int argc, char* argv[])
 {
 	int network_max_check_count = 512; //when 5sec delay, 512 means 42min.
 	int net_check_count = 0;
@@ -77,7 +81,27 @@ void main()
 	int pid, sid;
 	int count = 0;
 
+	int i = 0;
+
+	// default is network conn.
+	g_opt_is_net_conn = 1;
+
 	logd_init();
+
+	for ( i = 0 ; i < argc ; i ++ )
+	{
+		printf("argv [%d] => [%s]\r\n", i, argv[i]);
+		if ( strncmp(argv[i], OPT_STR__IS_NET_CONN_DISABLE, strlen(OPT_STR__IS_NET_CONN_DISABLE)) == 0 )
+		{
+			printf("network disable !!\r\n" );
+			g_opt_is_net_conn = 0;
+		}
+	}
+
+#ifdef NO_USE_NETWORK
+	printf("network disable !!\r\n" );
+	g_opt_is_net_conn = 0;
+#endif
 
 	// make deamon Process...
 	pid = fork();
@@ -110,11 +134,13 @@ void main()
 	printf("create_watchdog call.\n");
 	create_watchdog("emer.main", 3*60); //3min
 
-	printf("start main looping.\n");
+	printf("start main looping. [%d]\n", g_opt_is_net_conn);
 	net_check_count = 0;
-	while(1)
+
+#ifndef NO_USE_NETWORK
+	// network check...
+	while(g_opt_is_net_conn)
 	{
-		
 		// main routine...
 		if(!is_net_device_active()) {
 			network_device_up();
@@ -133,4 +159,19 @@ void main()
 		printf("emer main loop alive[%d/%d]\r\n", net_check_count, network_max_check_count);
 		LOGD(eSVC_COMMON, "emer main loop alive[%d/%d]\r\n", net_check_count, network_max_check_count);
 	}
+#endif
+	// network do not check.
+	printf("emer no check network!! do not conn network!!!!");
+
+	while(1)
+	{
+		net_wait_time = 60;
+		net_check_count = 0;
+
+		LOGI(eSVC_COMMON, "emer ::: SKIP NETWORK CHK\r\n");
+		sleep(net_wait_time);
+	
+		watchdog_keepalive_id("emer.main");
+	}
+
 }
