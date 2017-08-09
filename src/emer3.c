@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
+#include <mdsapi/mds_api.h>
 #include <at/at_util.h>
 #include <at/at_log.h>
 #include <at/watchdog.h>
@@ -72,10 +72,20 @@ void sms_proc(const char* phone_num, const char* recv_time, const char* msg)
 	
 }
 
+
+void chk_qcmap_proc()
+{
+	printf("qcmap check proc.\n");
+	if ( mds_api_proc_find("QCMAP_ConnectionManager") != DEFINES_MDS_API_OK )
+		system("/usr/bin/QCMAP_ConnectionManager /etc/mobileap_cfg.xml &");
+}
+
 void main(int argc, char* argv[])
 {
 	int network_max_check_count = 512; //when 5sec delay, 512 means 42min.
 	int net_check_count = 0;
+	int chk_qcmap_proc_count = 0;
+
 	int net_wait_time = 5;
 
 	int pid, sid;
@@ -137,6 +147,12 @@ void main(int argc, char* argv[])
 	printf("start main looping. [%d]\n", g_opt_is_net_conn);
 	net_check_count = 0;
 
+	// emer main proc wait and run.
+	sleep(20);
+
+	// first check.
+	chk_qcmap_proc();
+
 #ifndef NO_USE_NETWORK
 	// network check...
 	while(g_opt_is_net_conn)
@@ -146,13 +162,21 @@ void main(int argc, char* argv[])
 			network_device_up();
 			net_wait_time = 5;
 			net_check_count += 1;
+			chk_qcmap_proc_count += 1;
 		} else {
 			net_wait_time = 60;
 			net_check_count = 0;
+			chk_qcmap_proc_count = 0;
 		}
 		
 		sleep(net_wait_time);
 	
+		if ( chk_qcmap_proc_count > 30 ) // 5sec * 30 = 150sec :: check qcmap proc
+		{
+			chk_qcmap_proc();
+			chk_qcmap_proc_count = 0;
+		}
+
 		if(net_check_count < network_max_check_count)
 			watchdog_keepalive_id("emer.main");
 		
