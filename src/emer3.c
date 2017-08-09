@@ -75,9 +75,15 @@ void sms_proc(const char* phone_num, const char* recv_time, const char* msg)
 
 void chk_qcmap_proc()
 {
-	printf("qcmap check proc.\n");
-	if ( mds_api_proc_find("QCMAP_ConnectionManager") != DEFINES_MDS_API_OK )
+	int ret = 0;
+
+	ret = mds_api_proc_find("QCMAP_Connectio");
+	LOGD(eSVC_COMMON, "check qcmap proc [%d] \r\n", ret);
+	if ( ret <= 0 )
+	{
+		LOGE(eSVC_COMMON, " >> force run qcmap proc \r\n");
 		system("/usr/bin/QCMAP_ConnectionManager /etc/mobileap_cfg.xml &");
+	}
 }
 
 void main(int argc, char* argv[])
