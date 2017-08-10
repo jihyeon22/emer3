@@ -77,7 +77,7 @@ void chk_qcmap_proc()
 {
 	int ret = 0;
 
-	ret = mds_api_proc_find("QCMAP_Connectio");
+	ret = mds_api_proc_find("QCMAP_ConnectionManager");
 	LOGD(eSVC_COMMON, "check qcmap proc [%d] \r\n", ret);
 	if ( ret <= 0 )
 	{
