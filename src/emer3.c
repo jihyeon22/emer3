@@ -53,6 +53,8 @@ void sms_proc(const char* phone_num, const char* recv_time, const char* msg)
 	//_parse_sms(buffer);
 	
 	char target[MAX_CMD_TMP_BUFF]={0,};
+	char* filtered_sms = NULL;
+
 	int cnt = 0;
 	int target_len = 0;
 	const char *s = msg;
@@ -64,11 +66,25 @@ void sms_proc(const char* phone_num, const char* recv_time, const char* msg)
 	LOGD(eSVC_COMMON, "%s : msg [%s]\r\n", __func__,  msg);	
 	
 	util_remove_cr(msg, target, strlen(msg));
-	
-	LOGI(eSVC_COMMON, "parser target cmd is [%s]\r\n", target);
+	filtered_sms = target;
+	// remove "[web....]"
+	//printf(" strncasecmp => [%c] [%d]\r\n", target[0], strncasecmp(target+1,"web", strlen("web") ) );
+	if (( target[0] == '[' ) && ( strncasecmp(target+1,"web", strlen("web") )  == 0 ) )
+	{
+		char* tmp_char = strstr(target+4,"]");
+
+		if ( tmp_char != NULL )
+		{
+			tmp_char++;
+			filtered_sms = tmp_char;
+		}
+	}
+
+
+	LOGI(eSVC_COMMON, "parser target cmd is [%s] / [%s]\r\n", target, filtered_sms);
 	LOGT(eSVC_COMMON, "===============================================\n");
 	
-	parse_model_sms(recv_time, phone_num, target);
+	parse_model_sms(recv_time, phone_num, filtered_sms);
 	
 }
 
