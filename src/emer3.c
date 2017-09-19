@@ -172,6 +172,12 @@ void main(int argc, char* argv[])
 	// emer main proc wait and run.
 	sleep(20);
 
+	// 강제로 led 켠다. 간혹가다가 혹시나, led off 상태에서 출고될까봐..
+	if ( shm_data.test_mode == 0 )
+		send_at_cmd("AT$$LEDOFF=0");
+	else
+		send_at_cmd("AT$$LEDOFF=1");
+	
 	// first check.
 	chk_qcmap_proc();
 
@@ -193,7 +199,7 @@ void main(int argc, char* argv[])
 		
 		sleep(net_wait_time);
 	
-		if ( chk_qcmap_proc_count > 30 ) // 5sec * 30 = 150sec :: check qcmap proc
+		if ( chk_qcmap_proc_count > 10 ) // 5sec * 30 = 150sec :: check qcmap proc 
 		{
 			chk_qcmap_proc();
 			chk_qcmap_proc_count = 0;
