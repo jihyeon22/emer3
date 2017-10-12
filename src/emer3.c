@@ -15,6 +15,9 @@
 #include <at/watchdog.h>
 #include <logd_rpc.h>
 
+
+#include <mdsapi/mds_shm.h>
+
 #include "board_system.h"
 
 #include "sms_cmd.h"
@@ -115,6 +118,8 @@ void main(int argc, char* argv[])
 
 	int i = 0;
 
+    int led_onoff_cmd_flag = 0;
+
 	// default is network conn.
 	g_opt_is_net_conn = 1;
 
@@ -195,7 +200,16 @@ void main(int argc, char* argv[])
 		} else {
 			net_wait_time = 60;
 			net_check_count = 0;
-			chk_qcmap_proc_count = 0;
+            chk_qcmap_proc_count = 0;
+
+            if ( led_onoff_cmd_flag == 0)
+            {
+                SHM_GLOBAL_DATA_T shm_data = {0,};
+                app_shm_get_global_data(&shm_data);
+                if ( shm_data.test_mode == 0 )
+                    send_at_cmd("AT$$LEDOFF=0");
+                led_onoff_cmd_flag = 1;
+            }
 		}
 		
 		sleep(net_wait_time);
