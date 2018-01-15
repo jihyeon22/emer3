@@ -107,7 +107,7 @@ void chk_qcmap_proc()
 
 void main(int argc, char* argv[])
 {
-	int network_max_check_count = 512; //when 5sec delay, 512 means 42min.
+	int network_max_check_count = 240; // when 5sec delay, 240 means 20min.
 	int net_check_count = 0;
 	int chk_qcmap_proc_count = 0;
 
@@ -193,12 +193,13 @@ void main(int argc, char* argv[])
 	{
 		// main routine...
 		if(!is_net_device_active()) {
+            chk_qcmap_proc();  // if network disable when check process
 			network_device_up();
 			net_wait_time = 5;
 			net_check_count += 1;
 			chk_qcmap_proc_count += 1;
 		} else {
-			net_wait_time = 60;
+			net_wait_time = 30;	// normal stat : 30sec interval
 			net_check_count = 0;
             chk_qcmap_proc_count = 0;
 
