@@ -185,22 +185,25 @@ void main(int argc, char* argv[])
 		send_at_cmd("AT$$LEDOFF=1");
 	*/
 	// first check.
-	chk_qcmap_proc();
+    if(!is_net_device_active()) {
+        chk_qcmap_proc();  // if network disable when check process
+        network_device_up();
+    }
 
 #ifndef NO_USE_NETWORK
-	// network check...
-	while(g_opt_is_net_conn)
-	{
-		// main routine...
-		if(!is_net_device_active()) {
+    // network check...
+    while(g_opt_is_net_conn)
+    {
+        // main routine...
+        if(!is_net_device_active()) {
             chk_qcmap_proc();  // if network disable when check process
-			network_device_up();
-			net_wait_time = 5;
-			net_check_count += 1;
-			chk_qcmap_proc_count += 1;
-		} else {
-			net_wait_time = 30;	// normal stat : 30sec interval
-			net_check_count = 0;
+            network_device_up();
+            net_wait_time = 5;
+            net_check_count += 1;
+            chk_qcmap_proc_count += 1;
+        } else {
+            net_wait_time = 30;	// normal stat : 30sec interval
+            net_check_count = 0;
             chk_qcmap_proc_count = 0;
 
             if ( led_onoff_cmd_flag == 0)
@@ -211,35 +214,35 @@ void main(int argc, char* argv[])
                     send_at_cmd("AT$$LEDOFF=0");
                 led_onoff_cmd_flag = 1;
             }
-		}
-		
-		sleep(net_wait_time);
-	
-		if ( chk_qcmap_proc_count > 10 ) // 5sec * 30 = 150sec :: check qcmap proc 
-		{
-			chk_qcmap_proc();
-			chk_qcmap_proc_count = 0;
-		}
+        }
+        
+        sleep(net_wait_time);
 
-		if(net_check_count < network_max_check_count)
-			watchdog_keepalive_id("emer.main");
-		
-		printf("emer main loop alive[%d/%d]\r\n", net_check_count, network_max_check_count);
-		LOGD(eSVC_COMMON, "emer main loop alive[%d/%d]\r\n", net_check_count, network_max_check_count);
-	}
-#endif
-	// network do not check.
-	printf("emer no check network!! do not conn network!!!!");
+        if ( chk_qcmap_proc_count > 10 ) // 5sec * 30 = 150sec :: check qcmap proc 
+        {
+            chk_qcmap_proc();
+            chk_qcmap_proc_count = 0;
+        }
 
-	while(1)
-	{
-		net_wait_time = 60;
-		net_check_count = 0;
+        if(net_check_count < network_max_check_count)
+            watchdog_keepalive_id("emer.main");
+        
+        printf("emer main loop alive[%d/%d]\r\n", net_check_count, network_max_check_count);
+        LOGD(eSVC_COMMON, "emer main loop alive[%d/%d]\r\n", net_check_count, network_max_check_count);
+    }
+    #endif
+    // network do not check.
+    printf("emer no check network!! do not conn network!!!!");
 
-		LOGI(eSVC_COMMON, "emer ::: SKIP NETWORK CHK\r\n");
-		sleep(net_wait_time);
-	
-		watchdog_keepalive_id("emer.main");
-	}
+    while(1)
+    {
+        net_wait_time = 60;
+        net_check_count = 0;
+
+        LOGI(eSVC_COMMON, "emer ::: SKIP NETWORK CHK\r\n");
+        sleep(net_wait_time);
+
+        watchdog_keepalive_id("emer.main");
+    }
 
 }

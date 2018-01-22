@@ -29,6 +29,17 @@
 void network_device_up()
 {
 	SHM_GLOBAL_DATA_T shm_data = {0,};
+
+    static time_t last_cycle = 0;
+    time_t cur_time = 0;
+
+	struct timeval tv;
+	struct tm ttm;
+
+	gettimeofday(&tv, NULL);
+	localtime_r(&tv.tv_sec, &ttm);
+    cur_time = mktime(&ttm);
+
     app_shm_get_global_data(&shm_data);
 	if ( shm_data.test_mode == 1 )
 	{
@@ -44,6 +55,26 @@ void network_device_up()
 	printf("%s +--\n", __func__);
 
 	create_watchdog("network_device_up", 100); //100sec
+
+    // 너무 자주할경우 아예 안붙을것 같다는거지..
+    // 30 sec interval network chk
+    // 불리는 주기가 불규칙, 때문에 시간계산하여 30초마다 한번씩 불리도록
+    {
+        if(last_cycle == 0)
+            last_cycle = cur_time;
+
+        if ( cur_time < last_cycle )
+            last_cycle = cur_time;
+
+        if( (cur_time - last_cycle) < 30 )
+        {
+            printf("network check interval skip... [%d][%d]\r\n", (cur_time - last_cycle), 30);
+            return 0;
+        }
+
+        last_cycle = cur_time;
+    }
+
 	system(NETIF_DOWN_CMD);
 	send_at_cmd("at$$apcall=0");
 	sleep(2);
@@ -60,7 +91,6 @@ void network_device_up()
 		send_at_cmd("AT$$LEDOFF=1");
 
 	printf("%s +--\n", __func__);
-	
 }
 
 void network_device_down()
