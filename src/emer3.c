@@ -184,11 +184,16 @@ void main(int argc, char* argv[])
 	else
 		send_at_cmd("AT$$LEDOFF=1");
 	*/
+
 	// first check.
+#ifndef NO_USE_NETWORK
     if(!is_net_device_active()) {
         chk_qcmap_proc();  // if network disable when check process
         network_device_up();
     }
+#else
+    chk_qcmap_proc();  // if network disable when check process
+#endif
 
 #ifndef NO_USE_NETWORK
     // network check...

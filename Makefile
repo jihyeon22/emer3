@@ -31,6 +31,10 @@ ifeq ($(NO_USE_NETWORK),1)
 CFLAGS += -DNO_USE_NETWORK
 endif
 
+ifeq ($(NO_USE_NETWORK),y)
+CFLAGS += -DNO_USE_NETWORK
+endif
+
 ###############################################################################
 # Target rules
 
