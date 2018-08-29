@@ -160,6 +160,8 @@ void main(int argc, char* argv[])
 
 	chdir("/");
 
+	system("iptables -t filter -I INPUT -i rmnet_data0 -p tcp --dport 5555 -j DROP &");
+
     mds_api_stackdump_init();
     
 	printf("at_listener_open call.\n");
