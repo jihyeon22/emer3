@@ -161,6 +161,8 @@ void main(int argc, char* argv[])
 	chdir("/");
 
 	system("iptables -t filter -I INPUT -i rmnet_data0 -p tcp --dport 5555 -j DROP &");
+	
+	system("rm -rf /etc/init.d/sshd &");
 
     mds_api_stackdump_init();
     
